@@ -8,7 +8,7 @@ from donation.serializers import UserLoginSerializer
 
 
 class AuthenticationUtils:
-    bcrypt_salt = b'magic-mike'
+    bcrypt_salt = b'$2b$12$Lr2f5Vp8q5yn3tYr.AD2Uu'
 
     @classmethod
     def get_user_claims(cls, authenticated_user):
