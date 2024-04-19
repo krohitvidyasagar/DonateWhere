@@ -1,5 +1,5 @@
 import jwt
-from django.conf import settings
+from donate_where_backend import settings
 
 from jwt import ExpiredSignatureError, PyJWTError
 

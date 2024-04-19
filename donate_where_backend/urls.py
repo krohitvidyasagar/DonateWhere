@@ -17,12 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from donation.views import UserRegistrationView, LoginView
+from donation.views import UserRegistrationView, LoginView, ProfileView
 
 urlpatterns = [
     # API to register new users
     path('api/register', UserRegistrationView.as_view(), name=UserRegistrationView.name),
-
     # API to login
     path('api/login', LoginView.as_view(), name=LoginView.name),
+    # API for profile
+    path('api/profile', ProfileView.as_view(), name=ProfileView.name),
+
 ]

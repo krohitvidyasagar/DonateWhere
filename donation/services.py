@@ -2,7 +2,7 @@ import bcrypt
 import jwt
 from datetime import datetime
 
-from django.conf import settings
+from donate_where_backend import settings
 
 from donation.serializers import UserLoginSerializer
 

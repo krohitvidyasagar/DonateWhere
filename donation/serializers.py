@@ -7,4 +7,12 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'phone']
+        fields = ['id', 'first_name', 'last_name', 'email', 'phone', 'user_type']
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email', 'phone', 'user_type',
+                  'address', 'profile_photo_base64']
