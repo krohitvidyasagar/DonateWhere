@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 
 from donation.views import UserRegistrationView, LoginView, ProfileView, DonationListCreateView, \
-    DonationRetrievePutDeleteView
+    DonationRetrievePutDeleteView, DonationClaimView, ClaimListView
 
 urlpatterns = [
     # API to register new users
@@ -33,5 +33,10 @@ urlpatterns = [
     # API to retrieve, update and delete donation
     path('api/donation/<uuid:pk>', DonationRetrievePutDeleteView.as_view(),
          name=DonationRetrievePutDeleteView.name),
+
+    # API to list all claims
+    path('api/claim', ClaimListView.as_view(), name=ClaimListView.name),
+    # API to reserve a donation or delete a claim
+    path('api/donation/<uuid:pk>/claim', DonationClaimView.as_view(), name=DonationClaimView.name),
 
 ]

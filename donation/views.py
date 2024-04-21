@@ -1,11 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 from rest_framework import generics
 from rest_framework.exceptions import AuthenticationFailed, ParseError
 from rest_framework.response import Response
 
 from donation.filters import DonationFilter
-from donation.models import User, Donation, UserType
-from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationSerializer
+from donation.models import User, Donation, UserType, Claim
+from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationSerializer, ClaimSerializer
 from donation.services import AuthenticationUtils
 
 
@@ -44,7 +45,7 @@ class UserRegistrationView(generics.CreateAPIView):
                 user.user_type = user_type
                 user.save()
 
-            return Response({'detail': 'User has been successfully registered'})
+            return Response({'detail': 'User has been successfully registered.'})
 
 
 class LoginView(generics.CreateAPIView):
@@ -118,7 +119,7 @@ class DonationListCreateView(generics.ListCreateAPIView):
 
         Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime)
 
-        return Response({'detail': 'Donation has been created successfully'})
+        return Response({'detail': 'Donation has been created successfully.'})
 
 
 class DonationRetrievePutDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -139,3 +140,52 @@ class DonationRetrievePutDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+
+class ClaimListView(generics.ListAPIView):
+    name = 'donation-claim-view'
+    queryset = Claim.objects.all()
+
+    def get_queryset(self):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        if user.user_type == UserType.PERSONAL.value:
+            return super().get_queryset().filter(donation__donated_by_id=user.id)
+        else:
+            return super().get_queryset().filter(claimant_id=user.id)
+
+
+class DonationClaimView(generics.CreateAPIView, generics.DestroyAPIView):
+    name = 'donation-claim-view'
+    queryset = Claim.objects.all()
+    serializer_class = ClaimSerializer
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        organization = User.objects.get(email=email)
+
+        donation = Donation.objects.get(id=self.kwargs['pk'])
+
+        try:
+            claim = Claim.objects.create(donation=donation, claimant=organization)
+        except IntegrityError:
+            raise ParseError(detail='Donation has been already claimed by this organization.')
+
+        serializer = self.get_serializer(claim)
+
+        return Response(serializer.data)
+
+    def delete(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        organization = User.objects.get(email=email)
+
+        donation = Donation.objects.get(id=self.kwargs['pk'])
+
+        try:
+            claim = Claim.objects.get(donation_id=donation.id, claimant_id=organization.id)
+            claim.delete()
+
+            return Response({'detail': 'Claim has been deleted successfully.'})
+        except ObjectDoesNotExist:
+            raise ParseError(detail='Claim does not exist.')

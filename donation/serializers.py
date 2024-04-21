@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from donation.models import User, Donation
+from donation.models import User, Donation, Claim
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -35,3 +35,19 @@ class DonationSerializer(serializers.ModelSerializer):
     def get_donated_by(self, obj):
         owner = User.objects.get(id=obj.donated_by.id)
         return DonationOwnerSerializer(owner).data
+
+
+class ClaimSerializer(serializers.ModelSerializer):
+
+    donation = serializers.SerializerMethodField()
+    claimant = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Claim
+        fields = ['donation', 'claimant', 'claimed_on']
+
+    def get_donation(self, obj):
+        return DonationSerializer(obj.donation).data
+
+    def get_claimant(self, obj):
+        return UserProfileSerializer(obj.claimant).data

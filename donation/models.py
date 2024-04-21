@@ -57,6 +57,7 @@ class Claim(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'donation_claim'
+        db_table = 'claim'
         ordering = ['-claimed_on']
+        unique_together = ['donation', 'claimant']
 
