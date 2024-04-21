@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from donation.views import UserRegistrationView, LoginView, ProfileView
+from donation.views import UserRegistrationView, LoginView, ProfileView, DonationListCreateView, \
+    DonationRetrievePutDeleteView
 
 urlpatterns = [
     # API to register new users
@@ -26,5 +27,11 @@ urlpatterns = [
     path('api/login', LoginView.as_view(), name=LoginView.name),
     # API for profile
     path('api/profile', ProfileView.as_view(), name=ProfileView.name),
+
+    # API to list and create donations
+    path('api/donation', DonationListCreateView.as_view(), name=DonationListCreateView.name),
+    # API to retrieve, update and delete donation
+    path('api/donation/<uuid:pk>', DonationRetrievePutDeleteView.as_view(),
+         name=DonationRetrievePutDeleteView.name),
 
 ]

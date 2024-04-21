@@ -3,8 +3,9 @@ from rest_framework import generics
 from rest_framework.exceptions import AuthenticationFailed, ParseError
 from rest_framework.response import Response
 
-from donation.models import User
-from donation.serializers import UserLoginSerializer, UserProfileSerializer
+from donation.filters import DonationFilter
+from donation.models import User, Donation, UserType
+from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationSerializer
 from donation.services import AuthenticationUtils
 
 
@@ -89,3 +90,52 @@ class ProfileView(generics.ListAPIView):
         user = User.objects.get(email=email)
 
         return Response(self.get_serializer(user).data)
+
+
+class DonationListCreateView(generics.ListCreateAPIView):
+    name = 'donation-list-create-view'
+    queryset = Donation.objects.all()
+    serializer_class = DonationSerializer
+    filterset_class = DonationFilter
+
+    def get_queryset(self):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+        if user.user_type == UserType.PERSONAL.value:
+            return super().get_queryset().filter(donated_by_id=user.id)
+        return super().get_queryset()
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        item = self.request.data.get('item')
+        category = self.request.data.get('category')
+        datetime = self.request.data.get('datetime')
+
+        Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime)
+
+        return Response({'detail': 'Donation has been created successfully'})
+
+
+class DonationRetrievePutDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    name = 'donation-retrieve-put-delete-view'
+    queryset = Donation.objects.all()
+    serializer_class = DonationSerializer
+    lookup_field = 'id'
+    lookup_url_kwarg = 'pk'
+
+    def get_object(self):
+        return super().get_object()
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
