@@ -173,6 +173,9 @@ class DonationClaimView(generics.CreateAPIView, generics.DestroyAPIView):
         except IntegrityError:
             raise ParseError(detail='Donation has been already claimed by this organization.')
 
+        donation.is_claimed = True
+        donation.save()
+
         serializer = self.get_serializer(claim)
 
         return Response(serializer.data)
@@ -186,6 +189,9 @@ class DonationClaimView(generics.CreateAPIView, generics.DestroyAPIView):
         try:
             claim = Claim.objects.get(donation_id=donation.id, claimant_id=organization.id)
             claim.delete()
+
+            donation.is_claimed = False
+            donation.save()
 
             return Response({'detail': 'Claim has been deleted successfully.'})
         except ObjectDoesNotExist:
