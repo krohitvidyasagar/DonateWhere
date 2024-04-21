@@ -36,8 +36,10 @@ class Donation(models.Model):
     donated_by = models.ForeignKey(User, on_delete=models.CASCADE)
     item = models.CharField(max_length=100, null=False)
     category = models.CharField(max_length=50, null=False)
+    description = models.TextField(null=True)
     datetime = models.DateTimeField(null=False)
     is_claimed = models.BooleanField(default=False)
+    image_base64 = models.TextField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -45,3 +47,17 @@ class Donation(models.Model):
     class Meta:
         db_table = 'donation'
         ordering = ['-created_at']
+
+
+class Claim(models.Model):
+    donation = models.ForeignKey(Donation, on_delete=models.CASCADE, null=False)
+    claimant = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    claimed_on = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'claim'
+        ordering = ['-claimed_on']
+        unique_together = ['donation', 'claimant']
+
