@@ -145,6 +145,7 @@ class DonationRetrievePutDeleteView(generics.RetrieveUpdateDestroyAPIView):
 class ClaimListView(generics.ListAPIView):
     name = 'donation-claim-view'
     queryset = Claim.objects.all()
+    serializer_class = ClaimSerializer
 
     def get_queryset(self):
         email = self.request.auth_context['user']
