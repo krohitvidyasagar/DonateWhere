@@ -1,12 +1,14 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
+from django.db.models import Q
 from rest_framework import generics
 from rest_framework.exceptions import AuthenticationFailed, ParseError
 from rest_framework.response import Response
 
 from donation.filters import DonationFilter
-from donation.models import User, Donation, UserType, Claim
-from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationSerializer, ClaimSerializer
+from donation.models import User, Donation, UserType, Claim, Message, Conversation
+from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationSerializer, ClaimSerializer, \
+    MessageSerializer, ConversationSerializer, ConversationListSerializer
 from donation.services import AuthenticationUtils
 
 
@@ -196,3 +198,49 @@ class DonationClaimView(generics.CreateAPIView, generics.DestroyAPIView):
             return Response({'detail': 'Claim has been deleted successfully.'})
         except ObjectDoesNotExist:
             raise ParseError(detail='Claim does not exist.')
+
+
+class ConversationListCreateView(generics.ListCreateAPIView):
+    name = 'conversation-list-create-view'
+    queryset = Conversation.objects.all()
+    serializer_class = ConversationListSerializer
+
+    def get_queryset(self):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        return super().get_queryset().filter(Q(initiator=user) | Q(receiver=user))
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        sender = User.objects.get(email=email)
+
+        receiver_email = self.request.data.get('receiver')
+        receiver = User.objects.get(email=receiver_email)
+
+        text = self.request.data.get('text')
+
+        if request.data.get('conversation_id'):
+            conversation_id = request.data.get('conversation_id')
+            conversation = Conversation.objects.get(id=conversation_id)
+
+        else:
+            conversation = Conversation.objects.create(initiator=sender, receiver=receiver)
+
+        message = Message.objects.create(conversation=conversation, sender=sender, text=text)
+        serializer = ConversationSerializer(conversation)
+
+        return Response(serializer.data)
+
+
+class MessageListView(generics.ListAPIView):
+    name = 'message-list-view'
+    queryset = Message.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        conversation_id = self.kwargs['conversation_id']
+        conversation = Conversation.objects.get(id=conversation_id)
+
+        serializer = ConversationSerializer(conversation)
+
+        return Response(serializer.data)

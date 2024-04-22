@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path
 
 from donation.views import UserRegistrationView, LoginView, ProfileView, DonationListCreateView, \
-    DonationRetrievePutDeleteView, DonationClaimView, ClaimListView
+    DonationRetrievePutDeleteView, DonationClaimView, ClaimListView, ConversationListCreateView, \
+    MessageListView
 
 urlpatterns = [
     # API to register new users
@@ -38,5 +39,11 @@ urlpatterns = [
     path('api/claim', ClaimListView.as_view(), name=ClaimListView.name),
     # API to reserve a donation or delete a claim
     path('api/donation/<uuid:pk>/claim', DonationClaimView.as_view(), name=DonationClaimView.name),
+
+    # API to list all conversations of a user and start a conversation
+    path('api/conversation', ConversationListCreateView.as_view(), name=ConversationListCreateView.name),
+
+    # API to list all messages of a conversation
+    path('api/message/<uuid:conversation_id>', MessageListView.as_view(), name=MessageListView.name)
 
 ]
