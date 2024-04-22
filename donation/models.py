@@ -61,3 +61,25 @@ class Claim(models.Model):
         ordering = ['-claimed_on']
         unique_together = ['donation', 'claimant']
 
+
+class Conversation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    initiator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="convo_starter")
+    receiver = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="convo_participant")
+    start_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'conversation'
+        ordering = ['-start_time']
+
+
+class Message(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'message'
+        ordering = ['-timestamp']

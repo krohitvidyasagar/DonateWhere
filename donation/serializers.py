@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from donation.models import User, Donation, Claim
+from donation.models import User, Donation, Claim, Message, Conversation
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -51,3 +51,34 @@ class ClaimSerializer(serializers.ModelSerializer):
 
     def get_claimant(self, obj):
         return UserProfileSerializer(obj.claimant).data
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = ['sender', 'text', 'timestamp']
+
+
+class ConversationListSerializer(serializers.ModelSerializer):
+    initiator = UserLoginSerializer()
+    receiver = UserLoginSerializer()
+    last_message = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Conversation
+        fields = ['initiator', 'receiver', 'last_message']
+
+    def get_last_message(self, instance):
+        message = instance.message_set.first()
+        return MessageSerializer(instance=message).data
+
+
+class ConversationSerializer(serializers.ModelSerializer):
+    initiator = UserLoginSerializer()
+    receiver = UserLoginSerializer()
+    message_set = MessageSerializer(many=True)
+
+    class Meta:
+        model = Conversation
+        fields = ['initiator', 'receiver', 'message_set']
+
