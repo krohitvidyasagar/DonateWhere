@@ -40,6 +40,7 @@ class Donation(models.Model):
     datetime = models.DateTimeField(null=False)
     is_claimed = models.BooleanField(default=False)
     image_base64 = models.TextField(null=True)
+    address = models.TextField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

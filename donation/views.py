@@ -7,8 +7,8 @@ from rest_framework.response import Response
 
 from donation.filters import DonationFilter
 from donation.models import User, Donation, UserType, Claim, Message, Conversation
-from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationSerializer, ClaimSerializer, \
-    MessageSerializer, ConversationSerializer, ConversationListSerializer
+from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationListSerializer, ClaimSerializer, \
+    ConversationSerializer, ConversationListSerializer, DonationSerializer
 from donation.services import AuthenticationUtils
 
 
@@ -83,7 +83,7 @@ class LoginView(generics.CreateAPIView):
             raise AuthenticationFailed(detail='Authentication Error')
 
 
-class ProfileView(generics.ListAPIView):
+class ProfileView(generics.ListAPIView, generics.UpdateAPIView):
     name = 'user-profile-view'
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
@@ -94,11 +94,21 @@ class ProfileView(generics.ListAPIView):
 
         return Response(self.get_serializer(user).data)
 
+    def patch(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        serializer = UserProfileSerializer(user, data=self.request.data, partial=True)
+        serializer.is_valid()
+        serializer.save()
+
+        return Response(serializer.data)
+
 
 class DonationListCreateView(generics.ListCreateAPIView):
     name = 'donation-list-create-view'
     queryset = Donation.objects.all()
-    serializer_class = DonationSerializer
+    serializer_class = DonationListSerializer
     filterset_class = DonationFilter
 
     def get_queryset(self):
@@ -118,10 +128,16 @@ class DonationListCreateView(generics.ListCreateAPIView):
         item = self.request.data.get('item')
         category = self.request.data.get('category')
         datetime = self.request.data.get('datetime')
+        image_base64 = self.request.data.get('image_base64')
+        address = self.request.data.get('address')
+        description = self.request.data.get('description')
 
-        Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime)
+        donation = Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime,
+                                           address=address, image_base64=image_base64, description=description)
 
-        return Response({'detail': 'Donation has been created successfully.'})
+        serializer = self.get_serializer(donation)
+
+        return Response(serializer.data)
 
 
 class DonationRetrievePutDeleteView(generics.RetrieveUpdateDestroyAPIView):
