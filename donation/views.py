@@ -132,10 +132,12 @@ class DonationListCreateView(generics.ListCreateAPIView):
         address = self.request.data.get('address')
         description = self.request.data.get('description')
 
-        Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime,
-                                address=address, image_base64=image_base64, description=description)
+        donation = Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime,
+                                           address=address, image_base64=image_base64, description=description)
 
-        return Response({'detail': 'Donation has been created successfully.'})
+        serializer = self.get_serializer(donation)
+
+        return Response(serializer.data)
 
 
 class DonationRetrievePutDeleteView(generics.RetrieveUpdateDestroyAPIView):
