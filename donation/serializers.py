@@ -22,7 +22,7 @@ class DonationOwnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'address', 'profile_photo_base64']
+        fields = ['id', 'first_name', 'last_name', 'email', 'address', 'profile_photo_base64', 'address']
 
 
 class DonationSerializer(serializers.ModelSerializer):
@@ -30,7 +30,7 @@ class DonationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Donation
-        fields = ['id', 'item', 'category', 'datetime', 'is_claimed', 'created_at', 'donated_by']
+        fields = ['id', 'item', 'category', 'datetime', 'is_claimed', 'created_at', 'donated_by', 'address']
 
     def get_donated_by(self, obj):
         owner = User.objects.get(id=obj.donated_by.id)
