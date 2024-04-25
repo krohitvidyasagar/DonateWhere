@@ -83,7 +83,7 @@ class LoginView(generics.CreateAPIView):
             raise AuthenticationFailed(detail='Authentication Error')
 
 
-class ProfileView(generics.ListAPIView):
+class ProfileView(generics.ListAPIView, generics.UpdateAPIView):
     name = 'user-profile-view'
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
@@ -93,6 +93,16 @@ class ProfileView(generics.ListAPIView):
         user = User.objects.get(email=email)
 
         return Response(self.get_serializer(user).data)
+
+    def patch(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        serializer = UserProfileSerializer(user, data=self.request.data, partial=True)
+        serializer.is_valid()
+        serializer.save()
+
+        return Response(serializer.data)
 
 
 class DonationListCreateView(generics.ListCreateAPIView):
