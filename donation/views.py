@@ -7,8 +7,8 @@ from rest_framework.response import Response
 
 from donation.filters import DonationFilter
 from donation.models import User, Donation, UserType, Claim, Message, Conversation
-from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationSerializer, ClaimSerializer, \
-    MessageSerializer, ConversationSerializer, ConversationListSerializer
+from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationListSerializer, ClaimSerializer, \
+    ConversationSerializer, ConversationListSerializer, DonationSerializer
 from donation.services import AuthenticationUtils
 
 
@@ -108,7 +108,7 @@ class ProfileView(generics.ListAPIView, generics.UpdateAPIView):
 class DonationListCreateView(generics.ListCreateAPIView):
     name = 'donation-list-create-view'
     queryset = Donation.objects.all()
-    serializer_class = DonationSerializer
+    serializer_class = DonationListSerializer
     filterset_class = DonationFilter
 
     def get_queryset(self):
@@ -128,8 +128,12 @@ class DonationListCreateView(generics.ListCreateAPIView):
         item = self.request.data.get('item')
         category = self.request.data.get('category')
         datetime = self.request.data.get('datetime')
+        image_base64 = self.request.data.get('image_base64')
+        address = self.request.data.get('address')
+        description = self.request.data.get('description')
 
-        Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime)
+        Donation.objects.create(donated_by=user, item=item, category=category, datetime=datetime,
+                                address=address, image_base64=image_base64, description=description)
 
         return Response({'detail': 'Donation has been created successfully.'})
 
