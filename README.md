@@ -12,6 +12,7 @@
 4. Open the terminal in the root directory of the project and run the command `python3 -m venv env` and `source env/bin/activate`.
 5. Once the virtual environment is activated. Run the command `pip install -r requirements.txt`
 6. Once the requirements for the project have been installed.
-7. You can start the server by running the command `python manage.py runserver`
+7. Migrate the models of the project to the database by executing the command `python manage.py migrate`
+8. You can start the server by running the command `python manage.py runserver`
 
 
