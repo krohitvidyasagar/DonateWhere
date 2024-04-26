@@ -83,4 +83,20 @@ class Message(models.Model):
 
     class Meta:
         db_table = 'message'
-        ordering = ['-timestamp']
+        ordering = ['timestamp']
+
+
+class Event(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    organization = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, null=False)
+    description = models.TextField(null=True)
+
+    datetime = models.DateTimeField(null=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'event'
+        ordering = ['-created_at']

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from donation.models import User, Donation, Claim, Message, Conversation
+from donation.models import User, Donation, Claim, Message, Conversation, Event
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -103,3 +103,9 @@ class ConversationSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = ['id', 'initiator', 'receiver', 'message_set']
 
+
+class EventSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Event
+        fields = ['id', 'name', 'description', 'datetime', 'created_at', 'organization']

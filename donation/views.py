@@ -9,9 +9,9 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from donation.filters import DonationFilter
-from donation.models import User, Donation, UserType, Claim, Message, Conversation
+from donation.models import User, Donation, UserType, Claim, Message, Conversation, Event
 from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationListSerializer, ClaimSerializer, \
-    ConversationSerializer, ConversationListSerializer, DonationSerializer
+    ConversationSerializer, ConversationListSerializer, DonationSerializer, EventSerializer
 from donation.services import AuthenticationUtils
 
 
@@ -294,3 +294,47 @@ class ImageUploadView(generics.CreateAPIView):
             donation.save()
 
             return Response({'detail': 'Donation image uploaded successfully.'})
+
+
+class EventListCreateView(generics.ListCreateAPIView):
+    name = 'event-list-create-view'
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+
+    def get_queryset(self):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        if user.user_type == UserType.PERSONAL.value:
+            return super().get_queryset()
+        else:
+            return super().get_queryset().filter(organization_id=user.id)
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        name = self.request.data['name']
+        description = self.request.data.get('description')
+        datetime = self.request.data.get('datetime')
+
+        event = Event.objects.create(name=name, description=description, datetime=datetime,
+                                     organization=user)
+
+        serializer = self.get_serializer(event)
+
+        return Response(serializer.data)
+
+
+class EventUpdateDeleteView(generics.UpdateAPIView, generics.DestroyAPIView):
+    name = 'event-update-delete-view'
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    lookup_field = 'id'
+    lookup_url_kwarg = 'pk'
+
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
