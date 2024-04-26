@@ -19,7 +19,7 @@ from django.urls import path
 
 from donation.views import UserRegistrationView, LoginView, ProfileView, DonationListCreateView, \
     DonationRetrievePutDeleteView, DonationClaimView, ClaimListView, ConversationListCreateView, \
-    MessageListView
+    MessageListView, ImageUploadView
 
 urlpatterns = [
     # API to register new users
@@ -44,6 +44,9 @@ urlpatterns = [
     path('api/conversation', ConversationListCreateView.as_view(), name=ConversationListCreateView.name),
 
     # API to list all messages of a conversation
-    path('api/message/<uuid:conversation_id>', MessageListView.as_view(), name=MessageListView.name)
+    path('api/message/<uuid:conversation_id>', MessageListView.as_view(), name=MessageListView.name),
+
+    # API to upload image for donation
+    path('api/image', ImageUploadView.as_view(), name=ImageUploadView.name)
 
 ]

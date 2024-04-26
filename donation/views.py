@@ -1,8 +1,11 @@
+import base64
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.exceptions import AuthenticationFailed, ParseError
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
 from donation.filters import DonationFilter
@@ -260,3 +263,34 @@ class MessageListView(generics.ListAPIView):
         serializer = ConversationSerializer(conversation)
 
         return Response(serializer.data)
+
+
+class ImageUploadView(generics.CreateAPIView):
+    name = 'image-upload-view'
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        email = self.request.auth_context['user']
+        user = User.objects.get(email=email)
+
+        if self.request.FILES and 'profile' in self.request.FILES:
+            profile_photo = self.request.FILES['profile_photo']
+            profile_photo_base64 = base64.b64encode(profile_photo.read()).decode('utf-8')
+            user.profile_photo_base64 = profile_photo_base64
+
+            user.save()
+
+            return Response({'detail': 'User profile image uploaded successfully.'})
+
+        elif self.request.FILES and 'donation' in self.request.FILES:
+            donation_photo = self.request.FILES['donation']
+            donation_id = self.request.data['donation_id']
+
+            donation = Donation.objects.get(id=donation_id)
+
+            donation_photo_base64 = base64.b64encode(donation_photo.read()).decode('utf-8')
+            donation.image_base64 = donation_photo_base64
+
+            donation.save()
+
+            return Response({'detail': 'Donation image uploaded successfully.'})
