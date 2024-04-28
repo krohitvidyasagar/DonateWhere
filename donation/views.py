@@ -13,6 +13,7 @@ from donation.models import User, Donation, UserType, Claim, Message, Conversati
 from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationListSerializer, ClaimSerializer, \
     ConversationSerializer, ConversationListSerializer, DonationSerializer, EventSerializer
 from donation.services import AuthenticationUtils
+from donation.utils import WebsocketUtils
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -248,6 +249,9 @@ class ConversationListCreateView(generics.ListCreateAPIView):
 
         message = Message.objects.create(conversation=conversation, sender=sender, text=text)
         serializer = ConversationSerializer(conversation)
+
+        # Sending notification to a user
+        WebsocketUtils.send_chat_notification(message)
 
         return Response(serializer.data)
 
