@@ -90,7 +90,7 @@ class ConversationListSerializer(serializers.ModelSerializer):
         fields = ['id', 'initiator', 'receiver', 'last_message']
 
     def get_last_message(self, instance):
-        message = instance.message_set.first()
+        message = instance.message_set.last()
         return MessageSerializer(instance=message).data
 
 
