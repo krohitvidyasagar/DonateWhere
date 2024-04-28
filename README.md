@@ -1,10 +1,11 @@
 # DonateWhere
 
-#### Requirements for the project
-##### 1) Python
-##### 2) Postgres
+## Requirements for the project
+### 1) Python
+### 2) Postgres
+### 3) Redis
 
-### Instructions
+## Instructions
 
 1. Create a new database in postgres
 2. Open the file 'settings.py' and change the value of the 'SECRET_KEY'. Get a new secret key from https://djecrety.ir. Be sure not change the value of this secret key or to commit this.
