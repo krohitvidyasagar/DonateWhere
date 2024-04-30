@@ -277,7 +277,7 @@ class ImageUploadView(generics.CreateAPIView):
         email = self.request.auth_context['user']
         user = User.objects.get(email=email)
 
-        if self.request.FILES and 'profile' in self.request.FILES:
+        if self.request.FILES and 'profile_photo' in self.request.FILES:
             profile_photo = self.request.FILES['profile_photo']
             profile_photo_base64 = base64.b64encode(profile_photo.read()).decode('utf-8')
             user.profile_photo_base64 = profile_photo_base64
