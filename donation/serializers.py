@@ -104,13 +104,20 @@ class ConversationSerializer(serializers.ModelSerializer):
         fields = ['id', 'initiator', 'receiver', 'message_set']
 
 
+class OrganizationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'email']
+
+
 class EventSerializer(serializers.ModelSerializer):
 
     organization = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
-        fields = ['id', 'name', 'description', 'datetime', 'created_at', 'organization']
+        fields = ['id', 'name', 'description', 'address', 'datetime', 'organization', 'created_at']
 
     def get_organization(self, obj):
-        return UserProfileSerializer(obj).data
+        return OrganizationSerializer(obj.organization).data
