@@ -37,8 +37,8 @@ class DonationListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Donation
-        fields = ['id', 'item', 'category', 'datetime', 'is_claimed', 'created_at', 'donated_by', 'address',
-                  'image_base64']
+        fields = ['id', 'item', 'category', 'description', 'datetime', 'is_claimed', 'created_at', 'donated_by',
+                  'address', 'image_base64', 'created_at']
 
     def get_donated_by(self, obj):
         owner = User.objects.get(id=obj.donated_by.id)
