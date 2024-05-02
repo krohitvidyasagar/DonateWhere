@@ -106,6 +106,11 @@ class ConversationSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
 
+    organization = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = ['id', 'name', 'description', 'datetime', 'created_at', 'organization']
+
+    def get_organization(self, obj):
+        return UserProfileSerializer(obj).data
