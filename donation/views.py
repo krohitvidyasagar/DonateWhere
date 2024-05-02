@@ -8,7 +8,7 @@ from rest_framework.exceptions import AuthenticationFailed, ParseError
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
-from donation.filters import DonationFilter
+from donation.filters import DonationFilter, EventFilter
 from donation.models import User, Donation, UserType, Claim, Message, Conversation, Event
 from donation.serializers import UserLoginSerializer, UserProfileSerializer, DonationListSerializer, ClaimSerializer, \
     ConversationSerializer, ConversationListSerializer, DonationSerializer, EventSerializer
@@ -304,6 +304,7 @@ class EventListCreateView(generics.ListCreateAPIView):
     name = 'event-list-create-view'
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    filterset_class = EventFilter
 
     def get_queryset(self):
         email = self.request.auth_context['user']
