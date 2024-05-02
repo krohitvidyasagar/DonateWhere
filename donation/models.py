@@ -91,6 +91,7 @@ class Event(models.Model):
     organization = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
     description = models.TextField(null=True)
+    address = models.TextField(null=True)
 
     datetime = models.DateTimeField(null=False)
 
