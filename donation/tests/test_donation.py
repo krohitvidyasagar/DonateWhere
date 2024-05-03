@@ -27,8 +27,8 @@ class DonationTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user_2 = User.objects.create(first_name='Dhanush', last_name='S', email='dhanush.s@tmail.com',
-                                         phone='4441115555', password='789012', user_type=UserType.PERSONAL.value,
+        cls.user_2 = User.objects.create(first_name='Dhanush', last_name='S', email='dhanush.s@gmail.com',
+                                         phone='4441115555', password='admin', user_type=UserType.PERSONAL.value,
                                          address='415 Hopkins Lane, Dallas, TX')
 
         cls.donation_1 = Donation.objects.create(donated_by=cls.user_2, item='T-Shirts', category='Clothing',

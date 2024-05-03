@@ -1,4 +1,9 @@
+import os
 import base64
+import google.generativeai as genai
+from PIL import Image
+from io import BytesIO
+from dotenv import load_dotenv
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
@@ -15,7 +20,11 @@ from donation.serializers import UserLoginSerializer, UserProfileSerializer, Don
 from donation.services import AuthenticationUtils
 from donation.utils import WebsocketUtils
 
+load_dotenv()
 
+GEMINI_KEY = os.getenv('GEMINI_KEY')
+genai.configure(api_key=GEMINI_KEY)
+model = genai.GenerativeModel('gemini-pro-vision')
 class UserRegistrationView(generics.CreateAPIView):
     name = 'user-registration-view'
     queryset = User.objects.all()
@@ -298,8 +307,6 @@ class ImageUploadView(generics.CreateAPIView):
             donation.save()
 
             return Response({'detail': 'Donation image uploaded successfully.'})
-
-
 class EventListCreateView(generics.ListCreateAPIView):
     name = 'event-list-create-view'
     queryset = Event.objects.all()
@@ -343,3 +350,14 @@ class EventUpdateDeleteView(generics.UpdateAPIView, generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         return super().delete(request, *args, **kwargs)
+
+class DescriptionGeneratorView(generics.CreateAPIView):
+    name = 'description-generator-view'
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, *args, **kwargs):
+        donation_photo = self.request.FILES['donation']
+        imageFileContent = donation_photo.read()
+        img = Image.open(BytesIO(imageFileContent))
+        response = model.generate_content(["Generate a description of the donation from this image. This description will be used as one of the properties stored in the database for a Donations management system product. Be precise and make an educated guess about the colors, size and type of items in the image. You do not have to fully describe this image but only give information about the items that are present there that can be put up for donation", img])
+        return Response({'description': response.text})
